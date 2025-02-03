@@ -122,7 +122,7 @@
     <script type="text/babel">
         // Environment configuration
         const ENV = {
-            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbwpkcfwCG2R2FkY4CXh2UWXrCXQZJsc1sk5xw1VZfw6w7NVRt8wBlo5Qr8TpIdRcSFy/exec',
+            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxClxscdNcWOIV6nafzB3sGfhcNVwMD0vZGIFfmcDoHwaudX5jUYqnXLqdXYiEIEKft/exec',
             MAX_MESSAGE_LENGTH: 500
         };
 
@@ -143,11 +143,19 @@
             const submitToGoogleSheets = async (message) => {
                 try {
                     setIsLoading(true);
+                    
+                    // Log the exact endpoint being called
+                    console.log('Submitting to URL:', ENV.GOOGLE_SHEETS_ENDPOINT);
+
                     const response = await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
                         method: 'POST',
-                        mode: 'cors',
+                        mode: 'cors', // This is crucial for cross-origin requests
                         headers: {
                             'Content-Type': 'application/json',
+                            // Add these headers to handle CORS preflight
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+                            'Access-Control-Allow-Headers': 'Content-Type'
                         },
                         body: JSON.stringify({
                             timestamp: new Date().toISOString(),
@@ -156,17 +164,32 @@
                         })
                     });
                     
-                    // Detailed error logging
-                    const responseBody = await response.text();
-                    console.log('Response Status:', response.status);
-                    console.log('Response Body:', responseBody);
-                    
+                    // More detailed error logging
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}, body: ${responseBody}`);
+                        const errorText = await response.text();
+                        console.error('Response not OK:', {
+                            status: response.status,
+                            statusText: response.statusText,
+                            body: errorText
+                        });
+                        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
                     }
+
+                    // Log successful response
+                    const responseBody = await response.text();
+                    console.log('Successful Response:', responseBody);
+
                 } catch (error) {
-                    console.error('Full Error Details:', error);
-                    alert(`Submission failed: ${error.message}`);
+                    // Capture and log the full error details
+                    console.error('Submission Error Details:', {
+                        message: error.message,
+                        name: error.name,
+                        stack: error.stack
+                    });
+
+                    // More informative error message
+                    alert(`Submission failed. Please check your internet connection or try again. 
+Error details: ${error.message}`);
                 } finally {
                     setIsLoading(false);
                 }
