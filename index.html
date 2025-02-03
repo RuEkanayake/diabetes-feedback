@@ -16,9 +16,11 @@
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
         }
+
         input, textarea, select, button {
             font-size: 16px !important;
         }
+
         .logo-container {
             display: flex;
             align-items: center;
@@ -27,26 +29,31 @@
             padding: 12px;
             background-color: #006400;
         }
+
         .logo {
             height: 35px;
             width: auto;
             object-fit: contain;
         }
+
         .logo-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .emory-logo {
             background-color: white;
             padding: 4px;
             border-radius: 4px;
         }
+
         .messages {
             flex-grow: 1;
             overflow-y: auto;
             padding: 10px;
         }
+
         .message {
             margin: 10px 0;
             padding: 10px;
@@ -54,19 +61,23 @@
             max-width: 80%;
             white-space: pre-wrap;
         }
+
         .user-message {
             background-color: #dcf8c6;
             margin-left: auto;
         }
+
         .bot-message {
             background-color: white;
         }
+
         .input-container {
             display: flex;
             padding: 10px;
             background-color: white;
             border-top: 1px solid #ddd;
         }
+
         .input-container input {
             flex-grow: 1;
             padding: 8px;
@@ -74,6 +85,7 @@
             border-radius: 20px;
             margin-right: 8px;
         }
+
         .input-container button {
             padding: 8px 16px;
             background-color: #128C7E;
@@ -82,12 +94,14 @@
             border-radius: 20px;
             cursor: pointer;
         }
+
         .loading-indicator {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 10px;
         }
+
         .loading-spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #3498db;
@@ -96,21 +110,29 @@
             height: 40px;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
         .character-count {
             text-align: right;
             color: #888;
             font-size: 12px;
             padding: 0 10px;
         }
+
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
                 height: -webkit-fill-available;
             }
+
             .logo {
                 height: 25px;
             }
@@ -122,7 +144,7 @@
     <script type="text/babel">
         // Environment configuration
         const ENV = {
-            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxClxscdNcWOIV6nafzB3sGfhcNVwMD0vZGIFfmcDoHwaudX5jUYqnXLqdXYiEIEKft/exec',
+            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxHHh_jK2WupMH3MAshTn2RNrh_PzWBZfXkYl15tt2yaqSrkEnQSeWCAqXt2bZQ3zMJ/exec',
             MAX_MESSAGE_LENGTH: 500
         };
 
@@ -143,31 +165,29 @@
             const submitToGoogleSheets = async (message) => {
                 try {
                     setIsLoading(true);
-                    
-                    // Log the exact endpoint being called
-                    console.log('Submitting to URL:', ENV.GOOGLE_SHEETS_ENDPOINT);
+                    console.log('Submitting message:', message);
+                    console.log('Endpoint:', ENV.GOOGLE_SHEETS_ENDPOINT);
+
+                    const payload = {
+                        timestamp: new Date().toISOString(),
+                        message: message,
+                        consentStatus: hasConsented ? 'Agreed' : 'Not Agreed'
+                    };
+
+                    console.log('Payload:', JSON.stringify(payload));
 
                     const response = await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
                         method: 'POST',
-                        mode: 'cors', // This is crucial for cross-origin requests
                         headers: {
-                            'Content-Type': 'application/json',
-                            // Add these headers to handle CORS preflight
-                            'Access-Control-Allow-Origin': '*',
-                            'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-                            'Access-Control-Allow-Headers': 'Content-Type'
+                            'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({
-                            timestamp: new Date().toISOString(),
-                            message: message,
-                            consentStatus: hasConsented ? 'Agreed' : 'Not Agreed'
-                        })
+                        body: JSON.stringify(payload)
                     });
-                    
+
                     // More detailed error logging
                     if (!response.ok) {
                         const errorText = await response.text();
-                        console.error('Response not OK:', {
+                        console.error('Detailed Error Response:', {
                             status: response.status,
                             statusText: response.statusText,
                             body: errorText
@@ -175,21 +195,18 @@
                         throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
                     }
 
-                    // Log successful response
                     const responseBody = await response.text();
-                    console.log('Successful Response:', responseBody);
-
+                    console.log('Server Response:', responseBody);
                 } catch (error) {
-                    // Capture and log the full error details
-                    console.error('Submission Error Details:', {
+                    console.error('Submission Error:', {
                         message: error.message,
                         name: error.name,
                         stack: error.stack
                     });
 
-                    // More informative error message
-                    alert(`Submission failed. Please check your internet connection or try again. 
-Error details: ${error.message}`);
+                    alert(`Submission failed. 
+Details: ${error.message}
+Please check network, CORS settings, and Google Apps Script.`);
                 } finally {
                     setIsLoading(false);
                 }
@@ -197,7 +214,7 @@ Error details: ${error.message}`);
 
             const handleSend = () => {
                 const trimmedInput = inputText.trim();
-                
+
                 // Input validation
                 if (!trimmedInput) {
                     alert('Please enter a message');
@@ -339,8 +356,10 @@ Error details: ${error.message}`);
                 </div>
             );
         }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<WhatsAppForm />);
     </script>
 </body>
 </html>
+
