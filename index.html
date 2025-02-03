@@ -82,6 +82,30 @@
             border-radius: 20px;
             cursor: pointer;
         }
+        .loading-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .character-count {
+            text-align: right;
+            color: #888;
+            font-size: 12px;
+            padding: 0 10px;
+        }
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -96,6 +120,12 @@
 <body>
     <div id="root"></div>
     <script type="text/babel">
+        // Environment configuration (in a real-world scenario, this would be an actual environment variable)
+        const ENV = {
+            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzL0rYMFFlXExdkQuLbGX_hL7TlOjBPLbCK8iHsfTv3x8uZCtpY5TFqNq6cOLV1gTl0/exec',
+            MAX_MESSAGE_LENGTH: 500
+        };
+
         function WhatsAppForm() {
             const [messages, setMessages] = React.useState([
                 {
@@ -107,13 +137,18 @@
             const [inputText, setInputText] = React.useState("I agree");
             const [hasConsented, setHasConsented] = React.useState(false);
             const [hasGivenFeedback, setHasGivenFeedback] = React.useState(false);
+            const [isLoading, setIsLoading] = React.useState(false);
+            const [characterCount, setCharacterCount] = React.useState(0);
 
             const submitToGoogleSheets = async (message) => {
                 try {
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbxVgYVHtwdeWidZ4gHo0DWo9gzdOxTg6SRxGCdbR46pZ7ifBIfiVRf9CpsZDXT5JdAk/exec', {
+                    setIsLoading(true);
+                    const response = await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
                         method: 'POST',
+                        mode: 'cors', // Added CORS support
                         headers: {
                             'Content-Type': 'application/json',
+                            // In a real app, add CSRF token here
                         },
                         body: JSON.stringify({
                             timestamp: new Date().toISOString(),
@@ -123,28 +158,43 @@
                     });
                     
                     if (!response.ok) {
-                        console.error('Failed to submit to Google Sheets');
+                        throw new Error('Submission failed');
                     }
                 } catch (error) {
                     console.error('Error submitting to Google Sheets:', error);
+                    alert('Could not submit feedback. Please try again.');
+                } finally {
+                    setIsLoading(false);
                 }
             };
 
             const handleSend = () => {
-                if (!inputText.trim()) return;
+                const trimmedInput = inputText.trim();
+                
+                // Input validation
+                if (!trimmedInput) {
+                    alert('Please enter a message');
+                    return;
+                }
+
+                if (trimmedInput.length > ENV.MAX_MESSAGE_LENGTH) {
+                    alert(`Message too long. Please limit to ${ENV.MAX_MESSAGE_LENGTH} characters.`);
+                    return;
+                }
 
                 const newMessage = {
-                    text: inputText,
+                    text: trimmedInput,
                     isBot: false,
                     timestamp: new Date()
                 };
 
                 setMessages(prev => [...prev, newMessage]);
-                submitToGoogleSheets(inputText);
+                submitToGoogleSheets(trimmedInput);
                 setInputText("");
+                setCharacterCount(0);
 
                 if (!hasConsented) {
-                    if (inputText.toLowerCase().includes("i agree")) {
+                    if (trimmedInput.toLowerCase().includes("i agree")) {
                         setHasConsented(true);
                         setTimeout(() => {
                             setMessages(prev => [...prev, {
@@ -180,6 +230,12 @@
                         }]);
                     }, 1000);
                 }
+            };
+
+            const handleInputChange = (e) => {
+                const newText = e.target.value;
+                setInputText(newText);
+                setCharacterCount(newText.length);
             };
 
             return (
@@ -226,16 +282,32 @@
                                 {message.text}
                             </div>
                         ))}
+                        {isLoading && (
+                            <div className="loading-indicator">
+                                <div className="loading-spinner" aria-label="Loading"></div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="character-count">
+                        {characterCount}/{ENV.MAX_MESSAGE_LENGTH}
                     </div>
                     <div className="input-container">
                         <input
                             type="text"
                             value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
+                            onChange={handleInputChange}
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Type a message..."
+                            maxLength={ENV.MAX_MESSAGE_LENGTH}
+                            aria-label="Message input"
                         />
-                        <button onClick={handleSend}>Send</button>
+                        <button 
+                            onClick={handleSend}
+                            disabled={isLoading}
+                            aria-label="Send message"
+                        >
+                            Send
+                        </button>
                     </div>
                 </div>
             );
