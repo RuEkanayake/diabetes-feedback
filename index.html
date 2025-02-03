@@ -10,7 +10,6 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
-        /* Previous styles remain the same */
         body {
             margin: 0;
             padding: 20px;
@@ -24,15 +23,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 8px;
+            gap: 20px;
+            padding: 12px;
             background-color: #006400;
-            border-bottom: 1px solid #ddd;
         }
         .logo {
-            height: 40px;
+            height: 35px;
             width: auto;
             object-fit: contain;
+        }
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .emory-logo {
+            background-color: white;
+            padding: 4px;
+            border-radius: 4px;
         }
         .messages {
             flex-grow: 1;
@@ -80,7 +88,7 @@
                 height: -webkit-fill-available;
             }
             .logo {
-                height: 30px;
+                height: 25px;
             }
         }
     </style>
@@ -91,12 +99,12 @@
         function WhatsAppForm() {
             const [messages, setMessages] = React.useState([
                 {
-                    text: "Thank you for joining the fight against diabetes in India!\n\nBy consenting, you agree to have your comments saved and analyzed, helping researchers design the most innovative diabetes solutions for patients just like you. We will never store or share your name, data, or phone number and all your messages are completely anonymous. Please message \"I consent\" if you agree.",
+                    text: "Thank you for joining the fight against diabetes in India!\n\nBy agreeing, you agree to have your comments saved and analyzed, helping researchers design the most innovative diabetes solutions for patients just like you. We will never store or share your name, data, or phone number and all your messages are completely anonymous. Please message \"I agree\" if you agree.",
                     isBot: true,
                     timestamp: new Date()
                 }
             ]);
-            const [inputText, setInputText] = React.useState("I consent");
+            const [inputText, setInputText] = React.useState("I agree");
             const [hasConsented, setHasConsented] = React.useState(false);
             const [hasGivenFeedback, setHasGivenFeedback] = React.useState(false);
 
@@ -110,7 +118,7 @@
                         body: JSON.stringify({
                             timestamp: new Date().toISOString(),
                             message: message,
-                            consentStatus: hasConsented ? 'Consented' : 'Not Consented'
+                            consentStatus: hasConsented ? 'Agreed' : 'Not Agreed'
                         })
                     });
                     
@@ -132,15 +140,15 @@
                 };
 
                 setMessages(prev => [...prev, newMessage]);
-                submitToGoogleSheets(inputText); // Submit message to Google Sheets
+                submitToGoogleSheets(inputText);
                 setInputText("");
 
                 if (!hasConsented) {
-                    if (inputText.toLowerCase().includes("i consent")) {
+                    if (inputText.toLowerCase().includes("i agree")) {
                         setHasConsented(true);
                         setTimeout(() => {
                             setMessages(prev => [...prev, {
-                                text: "Thank you for consenting! Please tell us how you think researchers can improve diabetes care in India. What specific tools or solutions would be most helpful for diabetes patients?",
+                                text: "Thank you for agreeing! Please tell us how you think researchers can improve diabetes care in India. What specific tools or solutions would be most helpful for diabetes patients?",
                                 isBot: true,
                                 timestamp: new Date()
                             }]);
@@ -148,7 +156,7 @@
                     } else {
                         setTimeout(() => {
                             setMessages(prev => [...prev, {
-                                text: "To participate, please type \"I consent\" to agree to having your feedback analyzed.",
+                                text: "To participate, please type \"I agree\" to agree to having your feedback analyzed.",
                                 isBot: true,
                                 timestamp: new Date()
                             }]);
@@ -187,21 +195,27 @@
                     boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
                 }}>
                     <div className="logo-container">
-                        <img 
-                            src="https://i.ibb.co/Vc8pL4Rg/blue-EGDRC-logo-with-WHSC-tagline-004.png"
-                            alt="Emory Logo" 
-                            className="logo" 
-                        />
-                        <img 
-                            src="https://images1-fabric.practo.com/practices/741414/dr-mohan-s-diabetes-specialities-centre-hyderabad-5d1c9abe366f1.jpg"
-                            alt="Dr Mohan's Logo" 
-                            className="logo" 
-                        />
-                        <img 
-                            src="https://upload.wikimedia.org/wikipedia/en/thumb/6/69/IIT_Madras_Logo.svg/640px-IIT_Madras_Logo.svg.png"
-                            alt="IIT Logo" 
-                            className="logo" 
-                        />
+                        <div className="logo-wrapper">
+                            <img 
+                                src="https://i.ibb.co/CpVq3Jvj/blue-EGDRC-logo-with-WHSC-tagline-004.png"
+                                alt="Emory Logo" 
+                                className="logo emory-logo"
+                            />
+                        </div>
+                        <div className="logo-wrapper">
+                            <img 
+                                src="https://images1-fabric.practo.com/practices/741414/dr-mohan-s-diabetes-specialities-centre-hyderabad-5d1c9abe366f1.jpg"
+                                alt="Dr Mohan's Logo" 
+                                className="logo"
+                            />
+                        </div>
+                        <div className="logo-wrapper">
+                            <img 
+                                src="https://upload.wikimedia.org/wikipedia/en/thumb/6/69/IIT_Madras_Logo.svg/640px-IIT_Madras_Logo.svg.png"
+                                alt="IIT Logo" 
+                                className="logo"
+                            />
+                        </div>
                     </div>
                     <div className="messages">
                         {messages.map((message, index) => (
