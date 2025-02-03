@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     <style>
+        /* Previous styles remain the same */
         body {
             margin: 0;
             padding: 20px;
@@ -90,7 +91,7 @@
         function WhatsAppForm() {
             const [messages, setMessages] = React.useState([
                 {
-                    text: "**Thank you for joining the fight against diabetes in India!**\n\nBy consenting, you agree to have your comments saved and analyzed, helping researchers design the most innovative diabetes solutions for patients just like you. We will never store or share your name, data, or phone number and all your messages are completely anonymous. Please message \"I consent\" if you agree.",
+                    text: "Thank you for joining the fight against diabetes in India!\n\nBy consenting, you agree to have your comments saved and analyzed, helping researchers design the most innovative diabetes solutions for patients just like you. We will never store or share your name, data, or phone number and all your messages are completely anonymous. Please message \"I consent\" if you agree.",
                     isBot: true,
                     timestamp: new Date()
                 }
@@ -98,6 +99,28 @@
             const [inputText, setInputText] = React.useState("I consent");
             const [hasConsented, setHasConsented] = React.useState(false);
             const [hasGivenFeedback, setHasGivenFeedback] = React.useState(false);
+
+            const submitToGoogleSheets = async (message) => {
+                try {
+                    const response = await fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            timestamp: new Date().toISOString(),
+                            message: message,
+                            consentStatus: hasConsented ? 'Consented' : 'Not Consented'
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        console.error('Failed to submit to Google Sheets');
+                    }
+                } catch (error) {
+                    console.error('Error submitting to Google Sheets:', error);
+                }
+            };
 
             const handleSend = () => {
                 if (!inputText.trim()) return;
@@ -109,6 +132,7 @@
                 };
 
                 setMessages(prev => [...prev, newMessage]);
+                submitToGoogleSheets(inputText); // Submit message to Google Sheets
                 setInputText("");
 
                 if (!hasConsented) {
@@ -164,7 +188,7 @@
                 }}>
                     <div className="logo-container">
                         <img 
-                            src="https://research.emory.edu/_includes/images/sections/centers/egdrc/about-egdrc.png"
+                            src="https://i.ibb.co/Vc8pL4Rg/blue-EGDRC-logo-with-WHSC-tagline-004.png"
                             alt="Emory Logo" 
                             className="logo" 
                         />
