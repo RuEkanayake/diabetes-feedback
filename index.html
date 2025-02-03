@@ -120,9 +120,9 @@
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        // Environment configuration (in a real-world scenario, this would be an actual environment variable)
+        // Environment configuration
         const ENV = {
-            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzL0rYMFFlXExdkQuLbGX_hL7TlOjBPLbCK8iHsfTv3x8uZCtpY5TFqNq6cOLV1gTl0/exec',
+            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbwpkcfwCG2R2FkY4CXh2UWXrCXQZJsc1sk5xw1VZfw6w7NVRt8wBlo5Qr8TpIdRcSFy/exec',
             MAX_MESSAGE_LENGTH: 500
         };
 
@@ -145,10 +145,9 @@
                     setIsLoading(true);
                     const response = await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
                         method: 'POST',
-                        mode: 'cors', // Added CORS support
+                        mode: 'cors',
                         headers: {
                             'Content-Type': 'application/json',
-                            // In a real app, add CSRF token here
                         },
                         body: JSON.stringify({
                             timestamp: new Date().toISOString(),
@@ -157,12 +156,17 @@
                         })
                     });
                     
+                    // Detailed error logging
+                    const responseBody = await response.text();
+                    console.log('Response Status:', response.status);
+                    console.log('Response Body:', responseBody);
+                    
                     if (!response.ok) {
-                        throw new Error('Submission failed');
+                        throw new Error(`HTTP error! status: ${response.status}, body: ${responseBody}`);
                     }
                 } catch (error) {
-                    console.error('Error submitting to Google Sheets:', error);
-                    alert('Could not submit feedback. Please try again.');
+                    console.error('Full Error Details:', error);
+                    alert(`Submission failed: ${error.message}`);
                 } finally {
                     setIsLoading(false);
                 }
