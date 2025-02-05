@@ -1,11 +1,20 @@
+<!-- Declares the document as an HTML file -->
 <!DOCTYPE html>
 <html>
+<!-- Contains metadata, styles, and scripts required for the page -->
 <head>
+<!--     Meta tabs -->
+<!--     Defines character encoding as UTF-8, allowing support for international text -->
     <meta charset="UTF-8">
+<!-- Ensures the page is responsive by setting the viewport width to the device width. -->
+<!-- Disables zooming (user-scalable=no). -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- Sets the title of the web page. -->
+
     <title>Diabetes Research Feedback</title>
     
-    <!-- React and ReactDOM -->
+<!-- External libraries: React and ReactDOM are included to build the interactive UI. -->
+<!-- Babel is included to transpile modern JavaScript (JSX) into browser-compatible JavaScript. -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
@@ -14,7 +23,7 @@
             margin: 0;
             padding: 20px;
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #E6D5B8;
         }
 
         input, textarea, select, button {
@@ -140,7 +149,7 @@
     <script type="text/babel">
         // Environment configuration
 const ENV = {
-            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxmHLQFixZyaWfM34TSPGjKiT-TFQ9aLPHKi8_OF5RJXvOvHwQj6Z5u6X7h44Puk4mO/exec',
+            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzcvf0h85fwn0KdMgX-p77p98_vGaeJpMWsOmSijX_FhPVTllpYVRCLc5RFFFNBAp4F/exec',
             MAX_MESSAGE_LENGTH: 500
         };
 
@@ -165,19 +174,16 @@ const ENV = {
                     const payload = {
                         timestamp: new Date().toISOString(),
                         message: message,
-                        consentStatus: hasConsented ? 'Agreed' : 'Not Agreed'
+                        consentStatus: hasConsented ? 'I agree' : 'Not Agreed'
                     };
 
                     const response = await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
                         method: 'POST',
-                        mode: 'cors',
                         headers: {
                             'Content-Type': 'text/plain;charset=utf-8',
-                        },
-                        body: JSON.stringify(payload)
+                        }
                     });
 
-                    const responseText = await response.text();
                     console.log("Success:", responseText);
 
                     if (!response.ok) {
