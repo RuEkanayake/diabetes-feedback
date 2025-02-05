@@ -139,8 +139,8 @@
     <div id="root"></div>
     <script type="text/babel">
         // Environment configuration
-        const ENV = {
-            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxfaPPKih62NK_hOHvc2C_oTlshwokkQfw7Dm2pZCv7MB_lUNkJts-4AcS-5Lp3cwaX/exec',
+const ENV = {
+            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxmHLQFixZyaWfM34TSPGjKiT-TFQ9aLPHKi8_OF5RJXvOvHwQj6Z5u6X7h44Puk4mO/exec',
             MAX_MESSAGE_LENGTH: 500
         };
 
@@ -172,21 +172,16 @@
                         method: 'POST',
                         mode: 'cors',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'Origin': window.location.origin
+                            'Content-Type': 'text/plain;charset=utf-8',
                         },
                         body: JSON.stringify(payload)
                     });
 
+                    const responseText = await response.text();
+                    console.log("Success:", responseText);
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    console.log('Server Response:', result);
-
-                    if (result.status === 'error') {
-                        throw new Error(result.message);
                     }
 
                 } catch (error) {
@@ -196,6 +191,8 @@
                     setIsLoading(false);
                 }
             };
+
+
 
             const handleSend = () => {
                 const trimmedInput = inputText.trim();
