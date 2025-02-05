@@ -1,20 +1,9 @@
-<!-- Declares the document as an HTML file -->
 <!DOCTYPE html>
 <html>
-<!-- Contains metadata, styles, and scripts required for the page -->
 <head>
-<!--     Meta tabs -->
-<!--     Defines character encoding as UTF-8, allowing support for international text -->
     <meta charset="UTF-8">
-<!-- Ensures the page is responsive by setting the viewport width to the device width. -->
-<!-- Disables zooming (user-scalable=no). -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<!-- Sets the title of the web page. -->
-
     <title>Diabetes Research Feedback</title>
-    
-<!-- External libraries: React and ReactDOM are included to build the interactive UI. -->
-<!-- Babel is included to transpile modern JavaScript (JSX) into browser-compatible JavaScript. -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
@@ -30,31 +19,13 @@
             font-size: 16px !important;
         }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            padding: 12px;
+        .header {
             background-color: #006400;
-        }
-
-        .logo {
-            height: 35px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .logo-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .emory-logo {
-            background-color: white;
-            padding: 4px;
-            border-radius: 4px;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
         }
 
         .messages {
@@ -137,18 +108,13 @@
                 padding: 10px;
                 height: -webkit-fill-available;
             }
-
-            .logo {
-                height: 25px;
-            }
         }
     </style>
 </head>
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        // Environment configuration
-const ENV = {
+        const ENV = {
             GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzcvf0h85fwn0KdMgX-p77p98_vGaeJpMWsOmSijX_FhPVTllpYVRCLc5RFFFNBAp4F/exec',
             MAX_MESSAGE_LENGTH: 500
         };
@@ -184,8 +150,6 @@ const ENV = {
                         }
                     });
 
-                    console.log("Success:", responseText);
-
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
@@ -198,12 +162,9 @@ const ENV = {
                 }
             };
 
-
-
             const handleSend = () => {
                 const trimmedInput = inputText.trim();
 
-                // Input validation
                 if (!trimmedInput) {
                     alert('Please enter a message');
                     return;
@@ -282,28 +243,8 @@ const ENV = {
                     overflow: 'hidden',
                     boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
                 }}>
-                    <div className="logo-container">
-                        <div className="logo-wrapper">
-                            <img 
-                                src="https://i.ibb.co/CpVq3Jvj/blue-EGDRC-logo-with-WHSC-tagline-004.png"
-                                alt="Emory Logo" 
-                                className="logo emory-logo"
-                            />
-                        </div>
-                        <div className="logo-wrapper">
-                            <img 
-                                src="https://images1-fabric.practo.com/practices/741414/dr-mohan-s-diabetes-specialities-centre-hyderabad-5d1c9abe366f1.jpg"
-                                alt="Dr Mohan's Logo" 
-                                className="logo"
-                            />
-                        </div>
-                        <div className="logo-wrapper">
-                            <img 
-                                src="https://upload.wikimedia.org/wikipedia/en/thumb/6/69/IIT_Madras_Logo.svg/640px-IIT_Madras_Logo.svg.png"
-                                alt="IIT Logo" 
-                                className="logo"
-                            />
-                        </div>
+                    <div className="header">
+                        Diabetes Patient Feedback
                     </div>
                     <div className="messages">
                         {messages.map((message, index) => (
