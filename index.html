@@ -140,7 +140,7 @@
     <script type="text/babel">
         // Environment configuration
         const ENV = {
-            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbzdJYgE2kdq6MTXrOuKVI-ghIAIYHkdtQIO47aLAvAWk-6E-lI68Ys2dOSVA9NpIxgt/exec',
+            GOOGLE_SHEETS_ENDPOINT: 'https://script.google.com/macros/s/AKfycbxfaPPKih62NK_hOHvc2C_oTlshwokkQfw7Dm2pZCv7MB_lUNkJts-4AcS-5Lp3cwaX/exec',
             MAX_MESSAGE_LENGTH: 500
         };
 
@@ -167,18 +167,7 @@
                         message: message,
                         consentStatus: hasConsented ? 'Agreed' : 'Not Agreed'
                     };
-
-                    // First, make the OPTIONS request
-                    await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
-                        method: 'OPTIONS',
-                        headers: {
-                            'Access-Control-Request-Method': 'POST',
-                            'Access-Control-Request-Headers': 'Content-Type',
-                            'Origin': window.location.origin
-                        }
-                    });
-
-                    // Then make the actual POST request
+                    // Make the POST request directly - no need for separate OPTIONS request
                     const response = await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
                         method: 'POST',
                         mode: 'cors',
@@ -190,31 +179,21 @@
                     });
 
                     if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Server responded with ${response.status}: ${errorText}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
-                    const result = await response.text();
+                    const result = await response.json();
                     console.log('Server Response:', result);
-
-                    try {
-                        const jsonResult = JSON.parse(result);
-                        if (jsonResult.status === 'error') {
-                            throw new Error(jsonResult.message);
-                        }
-                    } catch (parseError) {
-                        console.log('Response parsing error:', parseError);
-                        // Continue if parsing fails, as the submission might still have worked
+                    
+                    if (result.status === 'error') {
+                        throw new Error(result.message);
                     }
-
                 } catch (error) {
-                    console.error('Submission Error:', {
-                        message: error.message,
-                        name: error.name,
-                        stack: error.stack
-                    });
-
-                    alert(`Submission failed. 
+                    console.error('Submission Error:', error);
+                    alert('Submission failed. Please try again later.');
+                } finally {
+                    setIsLoading(false);
+                }
+            };
 Details: ${error.message}
 Please check network, CORS settings, and Google Apps Script.`);
                 } finally {
