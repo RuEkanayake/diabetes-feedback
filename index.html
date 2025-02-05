@@ -167,7 +167,7 @@
                         message: message,
                         consentStatus: hasConsented ? 'Agreed' : 'Not Agreed'
                     };
-                    // Make the POST request directly - no need for separate OPTIONS request
+
                     const response = await fetch(ENV.GOOGLE_SHEETS_ENDPOINT, {
                         method: 'POST',
                         mode: 'cors',
@@ -181,21 +181,17 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
+
                     const result = await response.json();
                     console.log('Server Response:', result);
-                    
+
                     if (result.status === 'error') {
                         throw new Error(result.message);
                     }
+
                 } catch (error) {
                     console.error('Submission Error:', error);
-                    alert('Submission failed. Please try again later.');
-                } finally {
-                    setIsLoading(false);
-                }
-            };
-Details: ${error.message}
-Please check network, CORS settings, and Google Apps Script.`);
+                    alert(`Submission failed: ${error.message}\nPlease try again later.`);
                 } finally {
                     setIsLoading(false);
                 }
